@@ -52,6 +52,7 @@ namespace SerialADC
         }
         private void SetFormView(FormView form_view)
         {
+            
             switch(form_view)
             {
                 case FormView.SerialStopped:
@@ -312,13 +313,23 @@ namespace SerialADC
             signalgenerator.Stop();
         }
 
-        // FIXME: Funkcja wywoływana przez wątek timera, który nie ma dostępu do kontrolek formularza
-        // Próba zmiany parametru kontroli wywołuje wyjątek
         private void Serial_OnTimeout(object sender)
         {
-            SetFormView(FormView.SerialStopped);
-            SerialSetStatus(SerialStatus.Ready, string.Empty);
-            MessageBox.Show("Receiver do not respond", "Timeout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            SerialTimeout();
+        }
+
+        private void SerialTimeout()
+        {
+            if(this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(SerialTimeout));
+            }
+            else
+            {
+                SetFormView(FormView.SerialStopped);
+                SerialSetStatus(SerialStatus.Ready, string.Empty);
+                MessageBox.Show("Receiver do not respond", "Timeout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
     }
 }
